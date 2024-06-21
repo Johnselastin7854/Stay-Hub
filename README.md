@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+<h1 align="center">Stay Hub</h1>
 
-## Getting Started
+<p>Welcome to StayHub, your one-stop solution for booking hotels and motels! Whether you are looking for a luxurious stay or a budget-friendly option, StayHub offers a wide range of accommodations to suit your needs. Users can easily filter hotels by location, book their desired stay, and even create their own hotel listings for others to book.</p>
 
-First, run the development server:
+# Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Browse Hotels and Motels:** Explore a variety of accommodations ranging from budget motels to luxury hotels.
+
+- **Filter by Location:** Find hotels in specific locations to suit your travel plans.
+
+- **Book Hotels:** Conveniently book your preferred hotels directly through the web app.
+
+- **Create Hotel Listings:** Hotel owners can create and manage their own listings, making them available for others to book.
+
+# Tech Stack Used
+
+1. **_Next.js 14:_** A React framework for building fast, user-friendly web applications. [Read More](https://nextjs.org/).
+
+2. **_ShadCN UI:_** A UI library for building accessible, modular, and flexible user interfaces. [Read More](https://ui.shadcn.com/docs)
+
+3. **_TypeScript:_** A typed superset of JavaScript that compiles to plain JavaScript. [Read More](https://www.typescriptlang.org/).
+
+4. **_Tailwind CSS:_** A utility-first CSS framework for rapidly building custom user interfaces. [Read More](https://tailwindcss.com/).
+
+5. **_Prisma:_** A next-generation ORM for Node.js and TypeScript.
+   React Query: Data fetching and state management for React. [Read More](https://www.prisma.io/).
+
+6. **_MySQL:_** A popular open-source relational database management system. [Read More](https://dev.mysql.com/doc/)
+
+7. **_React Query:_** Data fetching and state management for React. [Read More](https://tanstack.com/query/v3/docs/framework/react/overview)
+
+8. **_Redux Toolkit_** The official, recommended way to write Redux logic.
+   Stripe: Online payment processing for internet businesses. [Read More](https://redux-toolkit.js.org/introduction/getting-started)
+
+9. **_Clerk:_** Authentication and user management platform. [Read More](https://clerk.com/docs).
+
+10. **_Stripe:_** Online payment processing for internet businesses.. [Read More](https://docs.stripe.com/).
+
+# Prerequisites
+
+- Node.js (version 14.x or higher)
+- npm (version 6.x or higher)
+- MySQL (version 5.7 or higher)
+
+# Installation
+
+1. **_Clone the repository:_**
+
+```git
+git clone https://github.com/yourusername/stayhub.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **_Navigate to the project directory:_**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```git
+cd stayhub
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+3. **_Install the dependencies:_**
 
-## Learn More
+```git
+npm install
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. **_Set up the MySQL database:_**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```git
+- Install MySQL and create a new database.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- Configure the database connection in your .env file:
 
-## Deploy on Vercel
+- DATABASE_URL="mysql://username:password@localhost:3306/database_name"
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+5. **_Start the development server::_**
+
+```git
+npm run dev
+```
+
+### The app will be accessible at http://localhost:3000.
+
+6.  **_Building for Production:_**
+
+```git
+npm run build
+```
