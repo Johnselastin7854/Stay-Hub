@@ -4,7 +4,9 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import Navbar from "@/components/layout/Navbar";
 import { ThemeProvider } from "@/components/theme-provider";
+import Container from "@/components/layout/Container";
 const inter = Inter({ subsets: ["latin"] });
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "Stay Hub",
@@ -29,9 +31,12 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <Toaster />
             <main className="flex flex-col min-h-screen bg-secondary">
               <Navbar />
-              <section className="flex-grow ">{children}</section>
+              <section className="flex-grow ">
+                <Container>{children}</Container>
+              </section>
             </main>
           </ThemeProvider>
         </body>
