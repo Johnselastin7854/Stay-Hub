@@ -17,7 +17,7 @@ const Navbar = () => {
   const [toggleDarkMode, setToggleDarkMode] = useState("");
 
   return (
-    <header className="sticky top-0 border border-b-primary/10 bg-secondary ">
+    <header className="sticky top-0 border border-b-primary/10 bg-secondary z-10">
       <Container>
         <nav className="flex items-center justify-between">
           <Link href={"/"}>

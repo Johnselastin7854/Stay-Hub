@@ -22,11 +22,12 @@ import { Eye, Loader2, Pencil, PencilLine, Trash } from "lucide-react";
 import axios from "axios";
 
 import { useRouter } from "next/navigation";
-import HotelAmenities from "./HotelAmenities";
 import HotelImageUpload from "./HotelImageUpload";
 import HotelLocationSelect from "./HotelLocationSelect";
 import HotelAlert from "./Alert";
 import AddRoomModal from "../Room/AddRoomModal";
+import { hotelAmenties } from "@/config/hotelAmertiesList";
+import Amenities from "../common/Amenities";
 
 interface AddhotelForms {
   hotel: HotelWithRooms | null;
@@ -219,7 +220,11 @@ const AddHotelForm = ({ hotel }: AddhotelForms) => {
                 </FormItem>
               )}
             />
-            <HotelAmenities />
+            <Amenities
+              amentiesList={hotelAmenties}
+              title="Choose Amenities (Optional)"
+              description="Choose Amenities that are available at your hotel"
+            />
             <HotelImageUpload hotelImage={image} setHotelImage={setImage} />
           </div>
           <div className="flex-1 flex flex-col gap-6">

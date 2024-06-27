@@ -18,9 +18,10 @@ import axios from "axios";
 type Props = {
   hotelImage: string | undefined;
   setHotelImage: (value: string | undefined) => void;
+  fullWidth?: boolean;
 };
 
-const HotelImageUpload = ({ hotelImage, setHotelImage }: Props) => {
+const HotelImageUpload = ({ hotelImage, setHotelImage, fullWidth }: Props) => {
   const { control } = useFormContext();
   const { toast } = useToast();
   const [image, setImage] = useState<string | undefined>(hotelImage);
@@ -59,7 +60,7 @@ const HotelImageUpload = ({ hotelImage, setHotelImage }: Props) => {
       control={control}
       name="image"
       render={({ field }) => (
-        <FormItem className="flex flex-col space-y-3">
+        <FormItem className="flex flex-col space-y-3 flex-grow">
           <FormLabel>Upload an Image *</FormLabel>
           <FormDescription>
             Choose an image that will show-case your hotel nicely
@@ -92,7 +93,11 @@ const HotelImageUpload = ({ hotelImage, setHotelImage }: Props) => {
               </>
             ) : (
               <>
-                <div className="flex flex-col items-center max-w-[400px] p-12 border-2 border-dashed border-primary/50 rounded mt-4">
+                <div
+                  className={`flex flex-col items-center ${
+                    fullWidth ? "w-full" : "max-w-[400px]"
+                  }  p-12 border-2 border-dashed border-primary/50 rounded mt-4`}
+                >
                   <UploadButton
                     endpoint="imageUploader"
                     onClientUploadComplete={(res) => {

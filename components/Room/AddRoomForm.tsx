@@ -1,9 +1,32 @@
-import { Hotel, Room } from "@prisma/client";
-import React from "react";
+"use client";
+import { Room } from "@prisma/client";
+import React, { useEffect, useState } from "react";
 import { HotelWithRooms } from "../Hotel/AddHotelForm";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { Form, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import Amenities from "../common/Amenities";
+import { roomAmentiesList } from "@/config/roomAmentiesList";
+import HotelImageUpload from "../Hotel/HotelImageUpload";
+import {
+  roomCustomizeListLeft,
+  roomCustomizeListRight,
+} from "@/config/room-customize-list";
+import { Button } from "../ui/button";
+import { Loader2, Pencil, PencilLine } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useToast } from "../ui/use-toast";
+import axios from "axios";
 
 interface AddRoomForm {
   hotel?: HotelWithRooms;
@@ -12,6 +35,12 @@ interface AddRoomForm {
 }
 
 const AddRoomForm = ({ hotel, room, handleDialogOpen }: AddRoomForm) => {
+  const router = useRouter();
+  const [image, setImage] = useState<string | undefined>(room?.image);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRoomDeleting, setIsRoomDeleting] = useState(false);
+  const { toast } = useToast();
+
   const formSchema = z.object({
     title: z
       .string()
@@ -67,7 +96,212 @@ const AddRoomForm = ({ hotel, room, handleDialogOpen }: AddRoomForm) => {
     },
   });
 
-  return <div className="max-h-[75vh] overflow-y-auto px-2">AddRoomForm</div>;
+  useEffect(() => {
+    if (typeof image === "string") {
+      form.setValue("image", image, {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    }
+  }, [image]);
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    setIsLoading(true);
+
+    if (hotel && room) {
+      // Update the room
+      axios
+        .patch(`/api/room/${room.id}`, values)
+        .then((res) => {
+          toast({
+            variant: "success",
+            description: "🎉 Room updated successfully",
+          });
+          router.refresh();
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.error(err);
+          toast({
+            variant: "destructive",
+            description: "Something went wrong",
+          });
+          setIsLoading(false);
+        });
+    } else {
+      if (!hotel) return;
+      // create a new room
+      axios
+        .post("/api/room", { ...values, hotelId: hotel.id })
+        .then((res) => {
+          toast({
+            variant: "success",
+            description: "🎉 Room created successfully",
+          });
+          router.refresh();
+          setIsLoading(false);
+          form.reset();
+        })
+        .catch((err) => {
+          console.error(err);
+          toast({
+            variant: "destructive",
+            description: "Something went wrong",
+          });
+          setIsLoading(false);
+        });
+    }
+  };
+
+  return (
+    <div className="max-h-[75vh] overflow-y-auto px-2">
+      <Form {...form}>
+        <form className="space-y-2">
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Room Title *</FormLabel>
+                <FormDescription>Provide a room name</FormDescription>
+                <FormControl>
+                  <Input placeholder="Double Room" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Room Description *</FormLabel>
+                <FormDescription>
+                  Is there anything special about this room?
+                </FormDescription>
+                <FormControl>
+                  <Textarea
+                    placeholder="Double Room have 2 king size bed with siting area..."
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Amenities
+            amentiesList={roomAmentiesList}
+            title="Choose Room Amenities (Optional)"
+            description="
+            What makes this room a good choice?s"
+          />
+
+          <HotelImageUpload
+            hotelImage={image}
+            setHotelImage={setImage}
+            fullWidth={true}
+          />
+
+          <div className="flex flex-col gap-6 md:flex-row">
+            <div className="flex-1 flex-col flex gap-6">
+              {roomCustomizeListLeft?.map((customize) => (
+                <FormField
+                  key={customize.title}
+                  control={form.control}
+                  name={customize.name as any}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{customize.title}</FormLabel>
+                      <FormDescription>{customize.description}</FormDescription>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={customize.min}
+                          max={customize.max}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ))}
+            </div>
+            <div className="flex-1 flex-col flex gap-6">
+              {roomCustomizeListRight.map((customize) => (
+                <FormField
+                  key={customize.title}
+                  control={form.control}
+                  name={customize.name as any}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{customize.title}</FormLabel>
+                      <FormDescription>{customize.description}</FormDescription>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={customize.min}
+                          max={customize.max}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-4 pb-2">
+            {room ? (
+              <Button
+                type="button"
+                onClick={form.handleSubmit(onSubmit)}
+                className="max-w-[150px]"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Updating
+                  </>
+                ) : (
+                  <>
+                    <PencilLine className="mr-2 h-4 w-4 " />
+                    Update
+                  </>
+                )}
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                onClick={form.handleSubmit(onSubmit)}
+                className="max-w-[150px]"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating
+                  </>
+                ) : (
+                  <>
+                    <Pencil className="mr-2 h-4 w-4 " />
+                    Create
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+        </form>
+      </Form>
+    </div>
+  );
 };
 
 export default AddRoomForm;
