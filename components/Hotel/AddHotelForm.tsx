@@ -27,7 +27,9 @@ import HotelLocationSelect from "./HotelLocationSelect";
 import HotelAlert from "./Alert";
 import AddRoomModal from "../Room/AddRoomModal";
 import { hotelAmenties } from "@/config/hotelAmertiesList";
-import Amenities from "../common/Amenities";
+import RoomCard from "../Room/RoomCard";
+import { Separator } from "../ui/separator";
+import HotelAmenities from "./HotelAmenties";
 
 interface AddhotelForms {
   hotel: HotelWithRooms | null;
@@ -220,7 +222,7 @@ const AddHotelForm = ({ hotel }: AddhotelForms) => {
                 </FormItem>
               )}
             />
-            <Amenities
+            <HotelAmenities
               amentiesList={hotelAmenties}
               title="Choose Amenities (Optional)"
               description="Choose Amenities that are available at your hotel"
@@ -288,7 +290,14 @@ const AddHotelForm = ({ hotel }: AddhotelForms) => {
                 </Button>
               )}
 
-              {hotel && <AddRoomModal hotel={hotel} />}
+              {hotel && (
+                <AddRoomModal
+                  hotel={hotel}
+                  title="Add Room"
+                  modalTitle="Add"
+                  modalDescription="Add a details about a room in your hotel"
+                />
+              )}
 
               {hotel ? (
                 <Button className="max-w-[150px]" disabled={isLoading}>
@@ -320,6 +329,18 @@ const AddHotelForm = ({ hotel }: AddhotelForms) => {
                 </Button>
               )}
             </div>
+
+            {hotel && !!hotel.rooms.length && (
+              <div>
+                <Separator className="bg-primary/10" />
+                <h3 className="text-lg font-semibold my-4">Hotel Rooms</h3>
+                <div className="grid grid-cols-1 2xl:grid-cols-2 gap-6">
+                  {hotel?.rooms.map((room) => (
+                    <RoomCard key={room.id} hotel={hotel} room={room} />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </form>

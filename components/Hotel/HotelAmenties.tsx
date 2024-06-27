@@ -14,12 +14,13 @@ type Props = {
   description: string;
 };
 
-const Amenities = ({ amentiesList, description, title }: Props) => {
+const HotelAmenities = ({ amentiesList, description, title }: Props) => {
   const { control } = useFormContext();
 
   function insertSpaces(str: string) {
     return str.replace(/([a-z])([A-Z])/g, "$1 $2");
   }
+
   return (
     <div>
       <FormLabel>{title}</FormLabel>
@@ -50,4 +51,4 @@ const Amenities = ({ amentiesList, description, title }: Props) => {
   );
 };
 
-export default Amenities;
+export default HotelAmenities;
