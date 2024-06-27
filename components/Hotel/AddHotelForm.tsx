@@ -25,6 +25,8 @@ import { useRouter } from "next/navigation";
 import HotelAmenities from "./HotelAmenities";
 import HotelImageUpload from "./HotelImageUpload";
 import HotelLocationSelect from "./HotelLocationSelect";
+import HotelAlert from "./Alert";
+import AddRoomModal from "../Room/AddRoomModal";
 
 interface AddhotelForms {
   hotel: HotelWithRooms | null;
@@ -244,13 +246,14 @@ const AddHotelForm = ({ hotel }: AddhotelForms) => {
                 </FormItem>
               )}
             />
+            {hotel && !hotel.rooms.length && <HotelAlert />}
 
             <div className="flex justify-between gap-2 flex-wrap">
               {hotel && (
                 <Button
                   variant={"ghost"}
                   type="button"
-                  className="max-w-[150px]"
+                  className="max-w-[150px] "
                   disabled={isLoading || isHotelDeleting}
                   onClick={() => handleDeleteHotel(hotel)}
                 >
@@ -279,6 +282,8 @@ const AddHotelForm = ({ hotel }: AddhotelForms) => {
                   <Eye className="mr-2 h-4 w-4" /> View
                 </Button>
               )}
+
+              {hotel && <AddRoomModal hotel={hotel} />}
 
               {hotel ? (
                 <Button className="max-w-[150px]" disabled={isLoading}>
