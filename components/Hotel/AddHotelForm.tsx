@@ -15,32 +15,21 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
-import { Checkbox } from "../ui/checkbox";
-import { UploadButton } from "../Uploadthing";
 import { useEffect, useState } from "react";
 import { useToast } from "../ui/use-toast";
-import Image from "next/image";
 import { Button } from "../ui/button";
-import {
-  Eye,
-  Loader2,
-  Pencil,
-  PencilLine,
-  Trash,
-  View,
-  XCircle,
-} from "lucide-react";
+import { Eye, Loader2, Pencil, PencilLine, Trash } from "lucide-react";
 import axios from "axios";
-import useLocation from "@/hooks/useLocation";
-import { ICity, IState } from "country-state-city";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+
 import { useRouter } from "next/navigation";
+import HotelImageUpload from "./HotelImageUpload";
+import HotelLocationSelect from "./HotelLocationSelect";
+import HotelAlert from "./Alert";
+import AddRoomModal from "../Room/AddRoomModal";
+import { hotelAmenties } from "@/config/hotelAmertiesList";
+import RoomCard from "../Room/RoomCard";
+import { Separator } from "../ui/separator";
+import HotelAmenities from "./HotelAmenties";
 
 interface AddhotelForms {
   hotel: HotelWithRooms | null;
@@ -84,14 +73,8 @@ const formSchema = z.object({
 const AddHotelForm = ({ hotel }: AddhotelForms) => {
   const router = useRouter();
   const [image, setImage] = useState<string | undefined>(hotel?.image);
-  const [imageIsDeleted, setImageIsDeleted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isHotelDeleting, setIsHotelDeleting] = useState(false);
-  const [state, setStates] = useState<IState[]>([]);
-  const [cities, setCities] = useState<ICity[]>([]);
-  const { getAllCountries, getCountryByState, getCititesByState } =
-    useLocation();
-  const countries = getAllCountries();
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -127,23 +110,6 @@ const AddHotelForm = ({ hotel }: AddhotelForms) => {
       });
     }
   }, [image]);
-
-  useEffect(() => {
-    const selectedCountry = form.watch("country");
-    const countryStates = getCountryByState(selectedCountry);
-    if (countryStates) {
-      setStates(countryStates);
-    }
-  }, [form.watch("country")]);
-
-  useEffect(() => {
-    const selectedCountry = form.watch("country");
-    const selectedStates = form.watch("state");
-    const StatesCity = getCititesByState(selectedCountry, selectedStates);
-    if (StatesCity) {
-      setCities(StatesCity);
-    }
-  }, [form.watch("state"), form.watch("country")]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
@@ -197,7 +163,7 @@ const AddHotelForm = ({ hotel }: AddhotelForms) => {
       src.substring(src.lastIndexOf("/") + 1);
     try {
       const imageKey = getImageKey(hotel.image);
-      // await axios.post("/api/uploadthing/delete", { imageKey });
+      await axios.post("/api/uploadthing/delete", { imageKey });
       await axios.delete(`/api/hotel/${hotel.id}`);
       setIsHotelDeleting(false);
       toast({
@@ -213,33 +179,6 @@ const AddHotelForm = ({ hotel }: AddhotelForms) => {
       });
       setIsHotelDeleting(false);
     }
-  };
-
-  const handleImageDelete = (image: string) => {
-    setImageIsDeleted(true);
-
-    const imageKey = image.substring(image.lastIndexOf("/") + 1);
-
-    axios
-      .post("/api/uploadthing/delete", { imageKey })
-      .then((res) => {
-        if (res.data.success) {
-          setImage("");
-          toast({
-            variant: "success",
-            description: "Image removed",
-          });
-        }
-      })
-      .catch((err: any) => {
-        toast({
-          variant: "destructive",
-          description: "Something went wrong",
-        });
-      })
-      .finally(() => {
-        setImageIsDeleted(false);
-      });
   };
 
   return (
@@ -283,365 +222,15 @@ const AddHotelForm = ({ hotel }: AddhotelForms) => {
                 </FormItem>
               )}
             />
-
-            <div>
-              <FormLabel>Choose Amenities (Optional)</FormLabel>
-              <FormDescription>
-                Choose Amenities that are available at your hotel
-              </FormDescription>
-              <div className="grid grid-cols-2 gap-4 mt-2">
-                <FormField
-                  control={form.control}
-                  name="gym"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-end space-x-3 rounded-md border-p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel>Gym</FormLabel>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="spa"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-end space-x-3 rounded-md border-p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel>Spa</FormLabel>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="bar"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-end space-x-3 rounded-md border-p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel>Bar</FormLabel>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="laundry"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-end space-x-3 rounded-md border-p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel>Laundry</FormLabel>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="restaurant"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-end space-x-3 rounded-md border-p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel>Restaurant</FormLabel>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="freeParking"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-end space-x-3 rounded-md border-p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel>Free Parking</FormLabel>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="bikeRental"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-end space-x-3 rounded-md border-p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel>Bike Rental</FormLabel>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="freeWifi"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-end space-x-3 rounded-md border-p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel>Free Wifi</FormLabel>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="movieNights"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-end space-x-3 rounded-md border-p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel>Movie Nights</FormLabel>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="swimmingPool"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-end space-x-3 rounded-md border-p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel>Swimming Pool</FormLabel>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="coffeeShop"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-end space-x-3 rounded-md border-p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel>Coffee Shop</FormLabel>
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            <FormField
-              control={form.control}
-              name="image"
-              render={({ field }) => (
-                <FormItem className="flex flex-col space-y-3">
-                  <FormLabel>Upload an Image *</FormLabel>
-                  <FormDescription>
-                    Choose an image that will show-case your hotel nicely
-                  </FormDescription>
-                  <FormControl>
-                    {image ? (
-                      <>
-                        <div className="relative max-w-[400px] min-w-[200px] max-h-[400px] min-h-[200px] mt-4">
-                          <Image
-                            fill
-                            src={image}
-                            alt="hotel_image"
-                            className="object-contain"
-                          />
-                          <Button
-                            onClick={() => handleImageDelete(image)}
-                            type="button"
-                            variant={"ghost"}
-                            size={"icon"}
-                            className="absolute right-[-12px] top-0"
-                          >
-                            {imageIsDeleted ? (
-                              <Loader2 className="animate-spin" />
-                            ) : (
-                              <XCircle />
-                            )}
-                          </Button>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="flex flex-col items-center max-w-[400px] p-12 border-2 border-dashed border-primary/50 rounded mt-4">
-                          <UploadButton
-                            endpoint="imageUploader"
-                            onClientUploadComplete={(res) => {
-                              setImage(res[0].url);
-                              toast({
-                                variant: "success",
-                                description: "🎉 Upload Completed",
-                              });
-                            }}
-                            onUploadError={(error: Error) => {
-                              toast({
-                                variant: "destructive",
-                                description: `ERROR! ${error.message}`,
-                              });
-                            }}
-                          />
-                        </div>
-                      </>
-                    )}
-                  </FormControl>
-                </FormItem>
-              )}
+            <HotelAmenities
+              amentiesList={hotelAmenties}
+              title="Choose Amenities (Optional)"
+              description="Choose Amenities that are available at your hotel"
             />
+            <HotelImageUpload hotelImage={image} setHotelImage={setImage} />
           </div>
           <div className="flex-1 flex flex-col gap-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="country"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Select Country *</FormLabel>
-                    <FormDescription>
-                      In Which country is your hotel located
-                    </FormDescription>
-                    <FormControl>
-                      <Select
-                        disabled={isLoading}
-                        onValueChange={field.onChange}
-                        value={field.value}
-                        defaultValue={field.value}
-                      >
-                        <SelectTrigger className="bg-background">
-                          <SelectValue
-                            defaultValue={field.value}
-                            placeholder="Select a Country"
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {countries?.map((country) => (
-                            <SelectItem
-                              key={country.isoCode}
-                              value={country.isoCode}
-                            >
-                              {country.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="state"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Select State</FormLabel>
-                    <FormDescription>
-                      In Which region is your hotel located
-                    </FormDescription>
-                    <FormControl>
-                      <Select
-                        disabled={isLoading || state.length < 1}
-                        onValueChange={field.onChange}
-                        value={field.value}
-                        defaultValue={field.value}
-                      >
-                        <SelectTrigger className="bg-background">
-                          <SelectValue
-                            defaultValue={field.value}
-                            placeholder="Select a State"
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {state?.map((state) => (
-                            <SelectItem
-                              key={state.isoCode}
-                              value={state.isoCode}
-                            >
-                              {state.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="city"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Select City (Optional)</FormLabel>
-                  <FormDescription>
-                    In Which city /town is your hotel located
-                  </FormDescription>
-                  <FormControl>
-                    <Select
-                      disabled={isLoading || cities.length < 1}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger className="bg-background">
-                        <SelectValue
-                          defaultValue={field.value}
-                          placeholder="Select city"
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {cities?.map((city) => (
-                          <SelectItem key={city.name} value={city.name}>
-                            {city.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+            <HotelLocationSelect loading={isLoading} />
 
             <FormField
               control={form.control}
@@ -664,13 +253,14 @@ const AddHotelForm = ({ hotel }: AddhotelForms) => {
                 </FormItem>
               )}
             />
+            {hotel && !hotel.rooms.length && <HotelAlert />}
 
             <div className="flex justify-between gap-2 flex-wrap">
               {hotel && (
                 <Button
                   variant={"ghost"}
                   type="button"
-                  className="max-w-[150px]"
+                  className="max-w-[150px] "
                   disabled={isLoading || isHotelDeleting}
                   onClick={() => handleDeleteHotel(hotel)}
                 >
@@ -698,6 +288,15 @@ const AddHotelForm = ({ hotel }: AddhotelForms) => {
                 >
                   <Eye className="mr-2 h-4 w-4" /> View
                 </Button>
+              )}
+
+              {hotel && (
+                <AddRoomModal
+                  hotel={hotel}
+                  title="Add Room"
+                  modalTitle="Add"
+                  modalDescription="Add a details about a room in your hotel"
+                />
               )}
 
               {hotel ? (
@@ -730,6 +329,18 @@ const AddHotelForm = ({ hotel }: AddhotelForms) => {
                 </Button>
               )}
             </div>
+
+            {hotel && !!hotel.rooms.length && (
+              <div>
+                <Separator className="bg-primary/10" />
+                <h3 className="text-lg font-semibold my-4">Hotel Rooms</h3>
+                <div className="grid grid-cols-1 2xl:grid-cols-2 gap-6">
+                  {hotel?.rooms.map((room) => (
+                    <RoomCard key={room.id} hotel={hotel} room={room} />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </form>

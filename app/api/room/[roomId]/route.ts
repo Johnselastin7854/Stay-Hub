@@ -4,52 +4,52 @@ import { NextResponse } from "next/server";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { hotelId: string } }
+  { params }: { params: { roomId: string } }
 ) {
   const body = await req.json();
   const { userId } = auth();
 
-  if (!params.hotelId) {
-    return new NextResponse("hotelId not found", { status: 400 });
+  if (!params.roomId) {
+    return new NextResponse("roomId not found", { status: 400 });
   }
 
   if (!userId) {
     return new NextResponse("User not authorized", { status: 401 });
   }
   try {
-    const updateHotel = await prismadb.hotel.update({
+    const updateRoom = await prismadb.room.update({
       where: {
-        id: params.hotelId,
+        id: params.roomId,
       },
       data: { ...body },
     });
 
-    return NextResponse.json(updateHotel);
+    return NextResponse.json(updateRoom);
   } catch (err) {
-    console.log("Error update the hotel", err);
+    console.log("Error update the room", err);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { hotelId: string } }
+  { params }: { params: { roomId: string } }
 ) {
   const { userId } = auth();
-  if (!params.hotelId)
-    return new NextResponse("hotelId not found", { status: 404 });
+  if (!params.roomId)
+    return new NextResponse("roomId not found", { status: 404 });
 
   if (!userId) return new NextResponse("User not authorized", { status: 401 });
   try {
-    const deleteHotel = await prismadb.hotel.delete({
+    const deleteRoom = await prismadb.room.delete({
       where: {
-        id: params.hotelId,
+        id: params.roomId,
       },
     });
 
-    return NextResponse.json(deleteHotel);
+    return NextResponse.json(deleteRoom);
   } catch (err) {
-    console.log("Error Deleting the hotel", err);
+    console.log("Error Deleting the room", err);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
