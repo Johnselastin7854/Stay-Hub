@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { HotelWithRooms } from "../Hotel/AddHotelForm";
 import { Booking, Room } from "@prisma/client";
 import {
@@ -35,6 +35,10 @@ import { Button } from "../ui/button";
 import AddRoomModal from "./AddRoomModal";
 import axios from "axios";
 import { useToast } from "../ui/use-toast";
+import { RoomDatePicker } from "./RoomDatePicker";
+import { DateRange } from "react-day-picker";
+import { differenceInCalendarDays } from "date-fns";
+import { Checkbox } from "../ui/checkbox";
 
 interface RoomCardProps {
   hotel?: HotelWithRooms;
@@ -47,8 +51,31 @@ const RoomCard = ({ hotel, room, bookings = [] }: RoomCardProps) => {
   const pathName = usePathname();
   const [isRoomDeleting, setIsRoomDeleting] = useState(false);
   const { toast } = useToast();
+  const [date, setDate] = React.useState<DateRange | undefined>();
+  const [totalPrice, setTotalPrice] = React.useState(room.roomPrice);
+  const [includeBreakFast, setIncludeBreakFast] = React.useState(false);
+  const [days, setDays] = useState(0);
 
   const isHotelDetailsPage = pathName.includes("hotel-details");
+
+  useEffect(() => {
+    if (date && date.from && date.to) {
+      const countDays = differenceInCalendarDays(date.to, date.from);
+      setDays(countDays);
+
+      if (countDays && room.roomPrice) {
+        if (includeBreakFast && room.breakFastPrice) {
+          setTotalPrice(
+            countDays * room.roomPrice + countDays * room.breakFastPrice
+          );
+        } else {
+          setTotalPrice(countDays * room.roomPrice);
+        }
+      } else {
+        setTotalPrice(room.roomPrice);
+      }
+    }
+  }, [date, room.roomPrice, includeBreakFast]);
 
   const handleDeleteRoom = async (room: Room) => {
     setIsRoomDeleting(true);
@@ -189,7 +216,38 @@ const RoomCard = ({ hotel, room, bookings = [] }: RoomCardProps) => {
       </CardContent>
       <CardFooter>
         {isHotelDetailsPage ? (
-          <div>Hotel Details Page</div>
+          <div className="flex flex-col gap-6">
+            <div>
+              <h4 className="mb-2">
+                Select days that you will spend in this room
+              </h4>
+              <RoomDatePicker date={date} setDate={setDate} />
+            </div>
+            {room.breakFastPrice && (
+              <div>
+                <p className="mb-2">
+                  Do you want to be served breakfast each day?
+                </p>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="breakFast"
+                    onCheckedChange={(value) => setIncludeBreakFast(!!value)}
+                  />
+                  <label htmlFor="breakFast" className="text-sm">
+                    Include BreakFast
+                  </label>
+                </div>
+              </div>
+            )}
+            <p>
+              Total Price: <span className="font-bold mr-1">${totalPrice}</span>
+              {days > 0 && (
+                <>
+                  for <span className="font-bold">{days} Days</span>
+                </>
+              )}
+            </p>
+          </div>
         ) : (
           <div className="w-full flex justify-between ">
             <Button

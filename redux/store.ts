@@ -1,8 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
+import bookRoomReducer from "./features/bookingSlice";
 
 export const makeStore = () => {
   return configureStore({
-    reducer: {},
+    reducer: { bookRoom: bookRoomReducer },
   });
 };
 
