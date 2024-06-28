@@ -27,6 +27,7 @@ import {
   Tv,
   Users,
   UtensilsCrossed,
+  Wand2,
   Wifi,
 } from "lucide-react";
 import { Separator } from "../ui/separator";
@@ -39,6 +40,15 @@ import { RoomDatePicker } from "./RoomDatePicker";
 import { DateRange } from "react-day-picker";
 import { differenceInCalendarDays } from "date-fns";
 import { Checkbox } from "../ui/checkbox";
+import { useAppDispatch } from "@/redux/hooks";
+import {
+  setClientSecret,
+  setPaymentIntent,
+  setRoomData,
+} from "@/redux/features/bookingSlice";
+import { useAuth } from "@clerk/nextjs";
+import { useSelector } from "react-redux";
+import { selectPaymentIntent } from "@/redux/selector";
 
 interface RoomCardProps {
   hotel?: HotelWithRooms;
@@ -47,6 +57,9 @@ interface RoomCardProps {
 }
 
 const RoomCard = ({ hotel, room, bookings = [] }: RoomCardProps) => {
+  const dispatch = useAppDispatch();
+  const paymentIntent = useSelector(selectPaymentIntent);
+  const { userId } = useAuth();
   const router = useRouter();
   const pathName = usePathname();
   const [isRoomDeleting, setIsRoomDeleting] = useState(false);
@@ -55,6 +68,7 @@ const RoomCard = ({ hotel, room, bookings = [] }: RoomCardProps) => {
   const [totalPrice, setTotalPrice] = React.useState(room.roomPrice);
   const [includeBreakFast, setIncludeBreakFast] = React.useState(false);
   const [days, setDays] = useState(0);
+  const [bookingIsLoading, setBookingIsLoading] = React.useState(false);
 
   const isHotelDetailsPage = pathName.includes("hotel-details");
 
@@ -98,6 +112,75 @@ const RoomCard = ({ hotel, room, bookings = [] }: RoomCardProps) => {
         description: "Hotel Deletion could not be completed",
       });
       setIsRoomDeleting(false);
+    }
+  };
+
+  const handleBookRoom = () => {
+    if (!userId)
+      return toast({
+        variant: "destructive",
+        description: "Oops! Make sure you are logged in.",
+      });
+
+    if (!hotel?.userId)
+      return toast({
+        variant: "destructive",
+        description: "Something went wrong, refresh the page and try again!",
+      });
+
+    if (date?.from && date?.to) {
+      setBookingIsLoading(true);
+      const bookingRoomData = {
+        room,
+        totalPrice,
+        breakFastIncluded: includeBreakFast,
+        startDate: date.from,
+        endDate: date.to,
+      };
+      dispatch(setRoomData(bookingRoomData));
+
+      fetch("/api/create-payment-intent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          booking: {
+            hotelOwnerId: hotel.userId,
+            hotelId: hotel.id,
+            roomId: room.id,
+            startDate: date.from,
+            endDate: date.to,
+            breakFastIncluded: includeBreakFast,
+            totalPrice: totalPrice,
+          },
+          payment_intent_id: paymentIntent,
+        }),
+      })
+        .then((res) => {
+          setBookingIsLoading(false);
+          if (res.status === 401) {
+            return router.push("/sign-in");
+          }
+          return res.json();
+        })
+        .then((data) => {
+          dispatch(setClientSecret(data.paymentIntent.client_secret));
+          dispatch(setPaymentIntent(data.paymentIntent.id));
+          router.push("/book-room");
+        })
+        .catch((error: any) => {
+          console.error(error);
+          toast({
+            variant: "destructive",
+            description: `Error: ${error.message}`,
+          });
+        });
+    } else {
+      toast({
+        variant: "destructive",
+        description: "Oops! Select Date",
+      });
     }
   };
   return (
@@ -247,6 +330,24 @@ const RoomCard = ({ hotel, room, bookings = [] }: RoomCardProps) => {
                 </>
               )}
             </p>
+            <Button
+              type="button"
+              onClick={() => handleBookRoom()}
+              className="max-w-[150px]"
+              disabled={bookingIsLoading}
+            >
+              {bookingIsLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                <>
+                  <Wand2 className="mr-2 h-4 w-4 " />
+                  Book Room
+                </>
+              )}
+            </Button>
           </div>
         ) : (
           <div className="w-full flex justify-between ">
