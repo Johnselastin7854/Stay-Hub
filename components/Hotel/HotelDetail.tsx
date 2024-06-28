@@ -111,7 +111,7 @@ const HotelDetail = ({ hotel, bookings }: HotelDetailProps) => {
         </div>
       </div>
 
-      {!hotel.rooms.length && (
+      {!!hotel.rooms.length && (
         <div>
           <h3 className="font-semibold text-lg mt-4 mb-2">Hotel Rooms</h3>
           <div className="grid grid-cols-1 md:grid-cols2 xl:grid-cols-3 gap-6">
