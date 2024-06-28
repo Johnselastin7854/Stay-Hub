@@ -27,14 +27,12 @@
 
 6. **_MySQL:_** A popular open-source relational database management system. [Read More](https://dev.mysql.com/doc/)
 
-7. **_React Query:_** Data fetching and state management for React. [Read More](https://tanstack.com/query/v3/docs/framework/react/overview)
-
-8. **_Redux Toolkit_** The official, recommended way to write Redux logic.
+7. **_Redux Toolkit_** The official, recommended way to write Redux logic.
    Stripe: Online payment processing for internet businesses. [Read More](https://redux-toolkit.js.org/introduction/getting-started)
 
-9. **_Clerk:_** Authentication and user management platform. [Read More](https://clerk.com/docs).
+8. **_Clerk:_** Authentication and user management platform. [Read More](https://clerk.com/docs).
 
-10. **_Stripe:_** Online payment processing for internet businesses.. [Read More](https://docs.stripe.com/).
+9. **_Stripe:_** Online payment processing for internet businesses.. [Read More](https://docs.stripe.com/).
 
 # Prerequisites
 

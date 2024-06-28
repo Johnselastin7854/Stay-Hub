@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import Container from "@/components/layout/Container";
 const inter = Inter({ subsets: ["latin"] });
 import { Toaster } from "@/components/ui/toaster";
+import StoreProvider from "./StoreProvider";
 
 export const metadata: Metadata = {
   title: "Stay Hub",
@@ -23,24 +24,26 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body className={inter.className}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Toaster />
-            <main className="flex flex-col min-h-screen bg-secondary">
-              <Navbar />
-              <section className="flex-grow ">
-                <Container>{children}</Container>
-              </section>
-            </main>
-          </ThemeProvider>
-        </body>
-      </html>
+      <StoreProvider>
+        <html lang="en" suppressHydrationWarning>
+          <body className={inter.className}>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <Toaster />
+              <main className="flex flex-col min-h-screen bg-secondary">
+                <Navbar />
+                <section className="flex-grow ">
+                  <Container>{children}</Container>
+                </section>
+              </main>
+            </ThemeProvider>
+          </body>
+        </html>
+      </StoreProvider>
     </ClerkProvider>
   );
 }

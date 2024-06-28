@@ -10,6 +10,7 @@ interface HotelPageProps {
 
 const Hotel = async ({ params }: HotelPageProps) => {
   const { userId } = auth();
+
   const hotel = await getHotelById(params.hotelId);
 
   if (!userId) return <p>Not Authenticated ...</p>;
